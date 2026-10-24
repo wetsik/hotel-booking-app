@@ -38,3 +38,11 @@ Proof: Free rooms 12-14 Nov: R7, R8
 A booking can be looked up by its id.
 
 Check: R101 → Maya, R7, 12–14 November, Confirmed.
+
+## R6 · Failed message
+
+If the confirmation cannot be sent, the booking stays saved and Accepted, and the failure is reported.
+
+Check: Maya books R7 for 12–14 November while the notification sender fails → Accepted R101, notification_failed = True, reservation remains saved.
+
+Proof: The failed-confirmation unit test passes. The reservation remains stored even when the notification sender raises an exception.
