@@ -3,7 +3,7 @@ from ..domain.reservation import Reservation
 from ..domain.room import Room
 
 
-class ReservationStore:
+class InMemoryReservationStore:
     """In-memory store, intentionally mirroring the P03 example."""
 
     def __init__(self) -> None:

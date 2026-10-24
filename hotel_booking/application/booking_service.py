@@ -4,8 +4,7 @@ from ..domain.date_range import DateRange
 from ..domain.guest import Guest
 from ..domain.reservation import Reservation
 from ..domain.room import Room
-from ..infrastructure.email_sender import EmailSender
-from ..infrastructure.reservation_store import ReservationStore
+from .interfaces import IReservationStore, INotificationSender
 from .booking_result import BookingResult
 
 
@@ -13,8 +12,8 @@ class BookingService:
     def __init__(
         self,
         rooms: list[Room],
-        store: ReservationStore,
-        email: EmailSender,
+        store: IReservationStore,
+        email: INotificationSender,
         slow_step_seconds: float = 0,
     ) -> None:
         self.rooms = rooms

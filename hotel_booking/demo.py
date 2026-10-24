@@ -7,8 +7,8 @@ from .application.booking_service import BookingService
 from .domain.date_range import DateRange
 from .domain.guest import Guest
 from .domain.room import Room
-from .infrastructure.email_sender import EmailSender
-from .infrastructure.reservation_store import ReservationStore
+from .infrastructure.EmailNotificationSender import EmailNotificationSender
+from .infrastructure.reservation_store import InMemoryReservationStore
 
 R7 = Room("R7", "Standard")
 R8 = Room("R8", "Deluxe")
@@ -26,8 +26,8 @@ def names(rooms: list[Room]) -> str:
 
 
 def run_demo() -> None:
-    store = ReservationStore()
-    email = EmailSender()
+    store = InMemoryReservationStore()
+    email = EmailNotificationSender()
     service = BookingService([R7, R8], store, email)
 
     print(f"Free rooms 12-14 Nov: {names(service.find_free_rooms(nov(12, 14)))}")
@@ -42,8 +42,8 @@ def run_demo() -> None:
 
 
 def run_race() -> None:
-    store = ReservationStore()
-    service = BookingService([R7, R8], store, EmailSender(), slow_step_seconds=0.5)
+    store = InMemoryReservationStore()
+    service = BookingService([R7, R8], store, EmailNotificationSender(), slow_step_seconds=0.5)
     stay = nov(12, 14)
     results: dict[str, BookingResult] = {}
 

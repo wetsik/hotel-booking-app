@@ -1,7 +1,7 @@
 from ..domain.reservation import Reservation
 
 
-class EmailSender:
+class EmailNotificationSender:
     """Simulates email delivery; no real messages are sent."""
 
     def __init__(self) -> None:

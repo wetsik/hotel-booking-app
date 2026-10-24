@@ -8,8 +8,8 @@ from hotel_booking.domain.room import Room
 from hotel_booking.domain.guest import Guest
 from hotel_booking.domain.date_range import DateRange
 from hotel_booking.application.booking_service import BookingService
-from hotel_booking.infrastructure.reservation_store import ReservationStore
-from hotel_booking.infrastructure.email_sender import EmailSender
+from hotel_booking.infrastructure.reservation_store import InMemoryReservationStore
+from hotel_booking.infrastructure.EmailNotificationSender import EmailNotificationSender
 
 
 R7 = Room("R7", "Standard")
@@ -28,8 +28,8 @@ def nov(check_in: int, check_out: int) -> DateRange:
 
 
 def new_service():
-    store = ReservationStore()
-    email = EmailSender()
+    store = InMemoryReservationStore()
+    email = EmailNotificationSender()
 
     service = BookingService([R7, R8], store, email)
 
