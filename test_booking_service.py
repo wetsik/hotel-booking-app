@@ -9,6 +9,7 @@ from hotel_booking.domain.guest import Guest
 from hotel_booking.domain.date_range import DateRange
 from hotel_booking.application.booking_service import BookingService
 from hotel_booking.infrastructure.reservation_store import InMemoryReservationStore
+from hotel_booking.infrastructure.sms_notification_sender import SmsNotificationSender
 from hotel_booking.infrastructure.EmailNotificationSender import EmailNotificationSender
 
 
@@ -27,13 +28,23 @@ def nov(check_in: int, check_out: int) -> DateRange:
     )
 
 
-def new_service():
+class FakeNotificationSender:
+    def __init__(self, fail: bool = False) -> None:
+        self.fail = fail
+        self.sent: list[str] = []
+
+    def send_confirmation(self, reservation) -> None:
+        if self.fail:
+            raise RuntimeError("The mail server is down.")
+
+        self.sent.append(reservation.id)
+
+
+def new_service(failing_sender: bool = False):
     store = InMemoryReservationStore()
-    email = EmailNotificationSender()
+    sender = FakeNotificationSender(failing_sender)
 
-    service = BookingService([R7, R8], store, email)
-
-    return service, store, email
+    return BookingService([R7, R8], store, sender), store, sender
 
 
 class BookingServiceTests(unittest.TestCase):
@@ -91,13 +102,34 @@ class BookingServiceTests(unittest.TestCase):
         )
 
     def test_one_confirmation_per_accepted_booking(self):
-        service, _, email = new_service()
+        service, _, sender = new_service()
 
         service.reserve(MAYA, R7, nov(12, 14))
         service.reserve(OMAR, R7, nov(13, 15))
         service.reserve(NORA, R7, nov(14, 16))
 
-        self.assertEqual(2, email.sent)
+        self.assertEqual(["R101", "R102"], sender.sent)
+
+    def test_a_failed_confirmation_keeps_the_booking(self):
+        service, store, _ = new_service(failing_sender=True)
+
+        result = service.reserve(MAYA, R7, nov(12, 14))
+
+        self.assertEqual("Accepted R101", str(result))
+        self.assertTrue(result.notification_failed)
+        self.assertEqual(1, store.count())
+
+    def test_sms_confirmations_need_no_change_to_booking_service(self):
+        sms = SmsNotificationSender()
+        service = BookingService(
+            [R7, R8],
+            InMemoryReservationStore(),
+            sms,
+        )
+
+        service.reserve(MAYA, R7, nov(12, 14))
+
+        self.assertEqual(1, sms.sent)
 
 
 if __name__ == "__main__":
