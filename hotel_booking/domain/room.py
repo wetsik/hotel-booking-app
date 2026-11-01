@@ -1,7 +1,4 @@
-from dataclasses import dataclass
+# Temporary compatibility layer during P06 migration.
+from hotel_booking.rooms import Room
 
-
-@dataclass(frozen=True)
-class Room:
-    number: str
-    type: str
+__all__ = ["Room"]

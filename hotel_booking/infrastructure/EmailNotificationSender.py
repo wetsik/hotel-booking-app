@@ -1,11 +1,3 @@
-from ..domain.reservation import Reservation
+from hotel_booking.notifications.internal import EmailNotificationSender
 
-
-class EmailNotificationSender:
-    """Simulates email delivery; no real messages are sent."""
-
-    def __init__(self) -> None:
-        self.sent = 0
-
-    def send_confirmation(self, reservation: Reservation) -> None:
-        self.sent += 1
+__all__ = ["EmailNotificationSender"]

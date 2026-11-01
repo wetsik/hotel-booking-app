@@ -1,16 +1,19 @@
-
-"""P04 Step 2: tests preserving P03 behaviour."""
+"""P06: tests preserving P04 booking behaviour."""
 
 import unittest
 from datetime import date
 
-from hotel_booking.domain.room import Room
-from hotel_booking.domain.guest import Guest
-from hotel_booking.domain.date_range import DateRange
-from hotel_booking.application.booking_service import BookingService
-from hotel_booking.infrastructure.reservation_store import InMemoryReservationStore
-from hotel_booking.infrastructure.sms_notification_sender import SmsNotificationSender
-from hotel_booking.infrastructure.EmailNotificationSender import EmailNotificationSender
+from hotel_booking.rooms import Room
+from hotel_booking.reservations import (
+    Guest,
+    DateRange,
+    BookingService,
+)
+from hotel_booking.reservations.internal import InMemoryReservationStore
+from hotel_booking.notifications.internal import (
+    EmailNotificationSender,
+    SmsNotificationSender,
+)
 
 
 R7 = Room("R7", "Standard")
@@ -33,11 +36,11 @@ class FakeNotificationSender:
         self.fail = fail
         self.sent: list[str] = []
 
-    def send_confirmation(self, reservation) -> None:
+    def send_confirmation(self, confirmation) -> None:
         if self.fail:
             raise RuntimeError("The mail server is down.")
 
-        self.sent.append(reservation.id)
+        self.sent.append(confirmation.reservation_id)
 
 
 def new_service(failing_sender: bool = False):

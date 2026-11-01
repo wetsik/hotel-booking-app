@@ -1,7 +1,1 @@
-from dataclasses import dataclass
-
-
-@dataclass(frozen=True)
-class Guest:
-    name: str
-    email: str
+from hotel_booking.reservations.guest import Guest
