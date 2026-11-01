@@ -32,3 +32,47 @@ jobs:
 
       - name: Run race demo
         run: python hotel_booking.py --race
+
+
+name: Hotel Booking CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install Import Linter
+        run: python -m pip install import-linter==2.15
+
+      - name: Run unit tests
+        run: python -m unittest -v
+
+      - name: Check module architecture
+        run: lint-imports
+
+      - name: Run normal demo
+        run: python hotel_booking.py
+
+      - name: Run race demo
+        run: python hotel_booking.py --race
+
+      - name: Run application wiring
+        run: python main.py
