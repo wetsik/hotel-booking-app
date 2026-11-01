@@ -6,7 +6,6 @@ from .contracts import IReservationStore
 from .date_range import DateRange
 from hotel_booking.rooms import Room
 from .booking_result import BookingResult
-from .internal import InMemoryReservationStore
 from hotel_booking.notifications import Confirmation, INotificationSender           
 
 

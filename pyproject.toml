@@ -1,0 +1,27 @@
+[tool.importlinter]
+root_package = "hotel_booking"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Notifications must not depend on Reservations"
+type = "forbidden"
+source_modules = ["hotel_booking.notifications"]
+forbidden_modules = ["hotel_booking.reservations"]
+
+[[tool.importlinter.contracts]]
+name = "Reservations cannot import Payments internals"
+type = "forbidden"
+source_modules = ["hotel_booking.reservations"]
+forbidden_modules = ["hotel_booking.payments.internal"]
+
+[[tool.importlinter.contracts]]
+name = "Business modules must keep internals private"
+type = "protected"
+protected_modules = [
+    "hotel_booking.rooms.internal",
+    "hotel_booking.reservations.internal",
+    "hotel_booking.payments.internal",
+    "hotel_booking.notifications.internal"
+]
+allowed_importers = ["main"]
+as_packages = false
