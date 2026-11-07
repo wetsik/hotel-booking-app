@@ -1,0 +1,19 @@
+﻿# The hotel booking app's database.
+# Start: docker compose up -d
+# Stop: docker compose down
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: hotel
+      POSTGRES_USER: hotel
+      POSTGRES_PASSWORD: hotel
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - hotel-data:/var/lib/postgresql
+
+volumes:
+  hotel-data:
