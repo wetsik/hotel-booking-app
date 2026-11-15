@@ -2,13 +2,26 @@
 openapi: 3.1.0
 info:
   title: Hotel booking API
-  version: 1.0.0
+  version: 1.1.0
   description: Search free rooms, book a room and cancel a reservation.
 
 servers:
   - url: http://localhost:5080
 
 paths:
+  /stats:
+    get:
+      operationId: getStats
+      summary: What the searches cost since the app started
+      description: Four counters for measuring search performance.
+      responses:
+        "200":
+          description: The four counters.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Stats" }
+              example: { searches: 1000, databaseQueries: 2000, cacheHits: 0, cacheMisses: 0 }
+
   /rooms/availability:
     get:
       operationId: findFreeRooms
@@ -92,6 +105,15 @@ paths:
 
 components:
   schemas:
+    Stats:
+      type: object
+      required: [searches, databaseQueries, cacheHits, cacheMisses]
+      properties:
+        searches: { type: integer, minimum: 0 }
+        databaseQueries: { type: integer, minimum: 0 }
+        cacheHits: { type: integer, minimum: 0 }
+        cacheMisses: { type: integer, minimum: 0 }
+
     Room:
       type: object
       required: [number, type]

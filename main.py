@@ -6,8 +6,10 @@ import sys
 from contextlib import contextmanager
 
 import uvicorn
+from redis import Redis
 
-from hotel_booking.api import create_app
+from hotel_booking.api import create_app, Stats, CountingReservationStore
+from hotel_booking.api_cache import AvailabilityCache, RedisKeyValueStore
 from hotel_booking.rooms import Room
 from hotel_booking.reservations import BookingService
 from hotel_booking.reservations.internal import InMemoryReservationStore
@@ -53,6 +55,15 @@ def run_api() -> None:
 
     rooms = PostgresRoomCatalog(engine).all()
     notifications = EmailNotificationSender()
+    stats = Stats()
+
+    redis = Redis(
+        host="localhost",
+        port=int(os.getenv("HOTEL_REDIS_PORT", "6379")),
+        decode_responses=True,
+    )
+    redis.ping()
+    cache = AvailabilityCache(RedisKeyValueStore(redis))
 
     @contextmanager
     def unit_of_work():
@@ -61,14 +72,14 @@ def run_api() -> None:
 
             yield BookingService(
                 rooms,
-                store,
+                CountingReservationStore(store, stats),
                 notifications,
             )
 
             store.save_changes()
 
     uvicorn.run(
-        create_app(rooms, unit_of_work),
+        create_app(rooms, unit_of_work, stats, cache),
         host="localhost",
         port=5080,
     )

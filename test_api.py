@@ -7,7 +7,8 @@ from contextlib import contextmanager
 
 from fastapi.testclient import TestClient
 
-from hotel_booking.api import create_app
+from hotel_booking.api import create_app, Stats, CountingReservationStore
+from hotel_booking.api_cache import AvailabilityCache
 from hotel_booking.notifications.internal import EmailNotificationSender
 from hotel_booking.reservations import BookingService
 from hotel_booking.reservations.internal import InMemoryReservationStore
@@ -35,10 +36,28 @@ OMAR = {
 }
 
 
+
+class InMemoryKeyValueStore:
+    """Dictionary-based Redis replacement for API tests."""
+
+    def __init__(self) -> None:
+        self._values: dict[str, str] = {}
+
+    def get(self, key: str) -> str | None:
+        return self._values.get(key)
+
+    def set(self, key: str, value: str, ttl_seconds: int) -> None:
+        self._values[key] = value
+
+    def increment(self, key: str) -> None:
+        self._values[key] = str(int(self._values.get(key, "0")) + 1)
+
 def new_client() -> TestClient:
+    stats = Stats()
+
     service = BookingService(
         [R7, R8],
-        InMemoryReservationStore(),
+        CountingReservationStore(InMemoryReservationStore(), stats),
         EmailNotificationSender(),
     )
 
@@ -46,7 +65,7 @@ def new_client() -> TestClient:
     def unit_of_work():
         yield service
 
-    return TestClient(create_app([R7, R8], unit_of_work))
+    return TestClient(create_app([R7, R8], unit_of_work, stats, AvailabilityCache(InMemoryKeyValueStore())))
 
 
 class ApiTests(unittest.TestCase):

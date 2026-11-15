@@ -1,3 +1,4 @@
+from .domain import Reservation
 from .date_range import DateRange
 from .guest import Guest
 from .booking_result import BookingResult
@@ -11,4 +12,5 @@ __all__ = [
     "BookingResult",
     "IReservationStore",
     "BookingService",
+    "Reservation",
 ]

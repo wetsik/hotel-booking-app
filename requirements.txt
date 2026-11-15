@@ -4,3 +4,4 @@ sqlalchemy==2.1.6
 psycopg[binary]==3.3.6
 httpx==0.28.1
 import-linter
+redis==8.1.0
